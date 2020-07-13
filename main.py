@@ -317,124 +317,127 @@ sounds = {
     'sad-trombone': pygame.mixer.Sound('sad-trombone.ogg'),
 }
 
-while running:
-    
-    if transitioning:
-        
-        action = run_once(level_up)
-        action() # run once the first time
-        player.lives = 5
-        meadow.rect.move_ip(0, +2)
-        all_sprites.remove()
-        if meadow.rect.top > SCREEN_HEIGHT:
-            meadow.kill()
-            transitioning = False
-  
-    elif game_over:
-        pygame.mixer.Sound.play(sounds['sad-trombone'])
-        show_go_screen()
-        game_over = False # WHY?
-        all_sprites = pygame.sprite.Group()
-        enemies = pygame.sprite.Group()
-        foods = pygame.sprite.Group()
-        clouds = pygame.sprite.Group()
-        player = Player()
-        meadow = Meadow()
-        all_sprites.add(meadow)
-        all_sprites.add(player)
-        player.wins = 0
-    if player.lives == -1:
-        game_over = True
+def main():
+    global game_over, transitioning, platform_created, running
+    global player, meadow, enemies, foods, clouds, all_sprites
+    global global_time
 
-    else:
-        dt = clock.tick(50)
-        global_time += dt        
-     
-    # for loop through the event queue
-    for event in pygame.event.get():
-        # Check for KEYDOWN event
-        if event.type == KEYDOWN:
-            # If the Esc key is pressed, then exit the main loop
-            if event.key == K_ESCAPE:
+    while running:
+        if transitioning:
+            action = run_once(level_up)
+            action() # run once the first time
+            player.lives = 5
+            meadow.rect.move_ip(0, +2)
+            all_sprites.remove()
+            if meadow.rect.top > SCREEN_HEIGHT:
+                meadow.kill()
+                transitioning = False
+
+        elif game_over:
+            pygame.mixer.Sound.play(sounds['sad-trombone'])
+            show_go_screen()
+            game_over = False # WHY?
+            all_sprites = pygame.sprite.Group()
+            enemies = pygame.sprite.Group()
+            foods = pygame.sprite.Group()
+            clouds = pygame.sprite.Group()
+            player = Player()
+            meadow = Meadow()
+            all_sprites.add(meadow)
+            all_sprites.add(player)
+            player.wins = 0
+        if player.lives == -1:
+            game_over = True
+
+        else:
+            dt = clock.tick(50)
+            global_time += dt
+
+        # for loop through the event queue
+        for event in pygame.event.get():
+            # Check for KEYDOWN event
+            if event.type == KEYDOWN:
+                # If the Esc key is pressed, then exit the main loop
+                if event.key == K_ESCAPE:
+                    running = False
+            # Check for QUIT event. If QUIT, then set running to false.
+            elif event.type == QUIT:
                 running = False
-        # Check for QUIT event. If QUIT, then set running to false.
-        elif event.type == QUIT:
-            running = False
-    
-        # Add a new enemy?
-        elif event.type == ADDENEMY and not transitioning:
-            # Create the new enemy and add it to sprite groups
-            new_enemy = Enemy()
-            enemies.add(new_enemy)
-            all_sprites.add(new_enemy)    
-            
-        # Add a new cloud?
-        elif event.type == ADDCLOUD:
-            # Create the new cloud and add it to sprite groups
-            new_cloud = Cloud()
-            clouds.add(new_cloud)
-            all_sprites.add(new_cloud)
-            
-        # Add a new food?
-        elif event.type == ADDFOOD and not transitioning:
-            # Create the new cloud and add it to sprite groups
-            new_food = Food()
-            foods.add(new_food)
-            all_sprites.add(new_food)
 
-    # Get the set of keys pressed and check for user input
-    pressed_keys = pygame.key.get_pressed()
-    
-    # Update the player sprite based on user keypresses
-    player.update(pressed_keys)
-    
-    # Update enemy position
-    enemies.update()
-    foods.update()
-    clouds.update()
+            # Add a new enemy?
+            elif event.type == ADDENEMY and not transitioning:
+                # Create the new enemy and add it to sprite groups
+                new_enemy = Enemy()
+                enemies.add(new_enemy)
+                all_sprites.add(new_enemy)
 
-    
-    # Fill the screen with blue
-    screen.fill((178, 211, 235))
+            # Add a new cloud?
+            elif event.type == ADDCLOUD:
+                # Create the new cloud and add it to sprite groups
+                new_cloud = Cloud()
+                clouds.add(new_cloud)
+                all_sprites.add(new_cloud)
 
-    # Draw all sprites
-    for entity in all_sprites:
-        screen.blit(entity.surf, entity.rect)
-        
-    draw_lives(screen, SCREEN_WIDTH - 240, 5, player.lives, player.mini_img)
-    draw_score(screen, 20, 5, player.wins, player.mini_food)
-        
-    # Check if any enemies have collided with the player, remove enemy, subtract player life
-    if pygame.sprite.spritecollide(player, enemies, dokill=True, collided = None) and not transitioning:
-        pygame.mixer.Sound.play(sounds['error'])
-        player.lives -=1
-        
-        pygame.time.wait(1500)
-        
-    if pygame.sprite.spritecollide(player, foods, dokill=True, collided = None) and not transitioning:
-        player.wins +=1
-        pygame.mixer.Sound.play(sounds['bite'])
-    
-    
-    if player.wins == 1:
-        transitioning = True
-        
-    # If so, then remove the player and stop the loop
-    if player.lives == -1:
-        game_over = True
+            # Add a new food?
+            elif event.type == ADDFOOD and not transitioning:
+                # Create the new cloud and add it to sprite groups
+                new_food = Food()
+                foods.add(new_food)
+                all_sprites.add(new_food)
 
-        #player.kill()
-        #pygame.time.wait(4500)
-        #running = False
-    
-    #if player.wins == 1:
-        #player.lives = 5
-        
-        
-    # Update the display (show the new frame)
-    pygame.display.flip()
-    
-    # Ensure program maintains a rate of 30 frames per second
-    clock.tick(50)
-    
-    
+        # Get the set of keys pressed and check for user input
+        pressed_keys = pygame.key.get_pressed()
+
+        # Update the player sprite based on user keypresses
+        player.update(pressed_keys)
+
+        # Update enemy position
+        enemies.update()
+        foods.update()
+        clouds.update()
+
+        # Fill the screen with blue
+        screen.fill((178, 211, 235))
+
+        # Draw all sprites
+        for entity in all_sprites:
+            screen.blit(entity.surf, entity.rect)
+
+        draw_lives(screen, SCREEN_WIDTH - 240, 5, player.lives, player.mini_img)
+        draw_score(screen, 20, 5, player.wins, player.mini_food)
+
+        # Check if any enemies have collided with the player, remove enemy, subtract player life
+        if pygame.sprite.spritecollide(player, enemies, dokill=True, collided=None) and not transitioning:
+            pygame.mixer.Sound.play(sounds['error'])
+            player.lives -= 1
+            pygame.time.wait(1500)
+
+        if pygame.sprite.spritecollide(player, foods, dokill=True, collided=None) and not transitioning:
+            player.wins += 1
+            pygame.mixer.Sound.play(sounds['bite'])
+
+        if player.wins == 1:
+            transitioning = True
+
+        # If so, then remove the player and stop the loop
+        if player.lives == -1:
+            game_over = True
+
+            #player.kill()
+            #pygame.time.wait(4500)
+            #running = False
+
+        #if player.wins == 1:
+            #player.lives = 5
+
+
+        # Update the display (show the new frame)
+        pygame.display.flip()
+
+        # Ensure program maintains a rate of 30 frames per second
+        clock.tick(50)
+
+
+
+if __name__ == '__main__':
+    main()
