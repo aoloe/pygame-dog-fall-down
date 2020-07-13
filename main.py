@@ -106,7 +106,7 @@ class Player(pygame.sprite.Sprite):
         self.wins = 0
         self.current_level = self.wins // 5
 
-    def update(self, pressed_keys):
+    def update(self, pressed_keys, dt):
 
         if self.current_level == 0:
             self.rect.bottom = SCREEN_HEIGHT
@@ -168,7 +168,7 @@ class Enemy(pygame.sprite.Sprite):
 
     # Move the sprite based on speed
     # Remove the sprite when it passes the left edge of the screen
-    def update(self):
+    def update(self, dt):
         self.rect.move_ip(0, +self.speed)
         if self.rect.bottom > SCREEN_HEIGHT+150:
             self.kill()
@@ -193,7 +193,7 @@ class Food(pygame.sprite.Sprite):
         self.time_duration = 2500 #sec in ms
         
     # Makes food wibble
-    def update(self):
+    def update(self, dt):
         self.rect.move_ip(random.randint(-1, 2), 0)
         
         if global_time > self.time_start + self.time_duration:
@@ -216,7 +216,7 @@ class Cloud(pygame.sprite.Sprite):
         )
 
     # Move cloud and remove it when it passes the left edge of the screen
-    def update(self):
+    def update(self, dt):
         self.rect.move_ip(-1, 0)
         if self.rect.right < 0:
             self.kill()
@@ -312,6 +312,7 @@ def main():
     pygame.time.set_timer(ADDCLOUD, 2700)
     pygame.time.set_timer(ADDFOOD, 4900)
 
+    dt = 0
     while Game.running:
         if Game.transitioning:
             action = run_once(level_up)
@@ -336,11 +337,10 @@ def main():
             all_sprites.add(meadow)
             all_sprites.add(player)
             player.wins = 0
+
         if player.lives == -1:
             Game.game_over = True
-
         else:
-            dt = clock.tick(50)
             global_time += dt
 
         # for loop through the event queue
@@ -379,12 +379,12 @@ def main():
         pressed_keys = pygame.key.get_pressed()
 
         # Update the player sprite based on user keypresses
-        player.update(pressed_keys)
+        player.update(pressed_keys, dt)
 
         # Update enemy position
-        enemies.update()
-        foods.update()
-        clouds.update()
+        enemies.update(dt)
+        foods.update(dt)
+        clouds.update(dt)
 
         # Fill the screen with blue
         screen.fill((178, 211, 235))
@@ -425,7 +425,7 @@ def main():
         pygame.display.flip()
 
         # Ensure program maintains a rate of 30 frames per second
-        clock.tick(50)
+        dt = clock.tick(50)
 
 
 
