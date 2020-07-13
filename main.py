@@ -52,11 +52,6 @@ class Platform(pygame.sprite.Sprite):
         self.size = self.original_image.get_size()
         self.surf = pygame.transform.scale(self.original_image, (int(self.size[0] // 3), int(self.size[1] // 3)))
         self.rect = self.surf.get_rect(center=(SCREEN_HALF_WIDTH, SCREEN_HALF_HEIGHT))
-        #self.rect.top = 0
-        #self.rect.centerx = 0
-        
-    #def platform_moves_up(self):
-        #self.rect.move_ip(0, -2)
 
 class Meadow(pygame.sprite.Sprite):
     def __init__(self):
@@ -65,13 +60,6 @@ class Meadow(pygame.sprite.Sprite):
         self.size = self.original_image.get_size()
         self.surf = pygame.transform.scale(self.original_image, (int(self.size[0] // 4), int(self.size[1] // 4)))
         self.rect = self.surf.get_rect(center=(SCREEN_HALF_WIDTH, int(SCREEN_HEIGHT / 1.2)))
-        
-    #def level_moves_up(self):
-        
-        #self.rect.move_ip(0, +2)
-        #if self.rect.top > SCREEN_HEIGHT:
-            #Game.transitioning = False
-            #self.kill()
 
 class Player(pygame.sprite.Sprite):
     def __init__(self):
@@ -125,7 +113,7 @@ class Player(pygame.sprite.Sprite):
             self.surf = self.image_unflipped
             self.moving_right = True
         
-        if not(self.is_jump): 
+        if not(self.is_jump):
 
             if pressed_keys[K_SPACE] and not Game.transitioning:
                 pygame.mixer.Sound.play(Game.sounds['bark'])
@@ -135,16 +123,14 @@ class Player(pygame.sprite.Sprite):
             if self.jump_count >= -15:
                 self.rect.move_ip(0, self.jump_count * abs(self.jump_count) // 2)
                 self.jump_count -= 3
-            else: 
-                self.is_jump = False          
+            else:
+                self.is_jump = False
 
         # Keep the player on the screen and flip according to direction
         if self.moving_left and self.rect.right <= 0:
             self.rect.left = SCREEN_WIDTH
-            #self.surf = self.image_unflipped
         elif self.moving_right and self.rect.left >= SCREEN_WIDTH:
             self.rect.right = 0
-            #self.surf = self.image_flipped
         if self.rect.top <= 0:
             self.rect.top = 0
         if self.rect.bottom >= SCREEN_HEIGHT:
