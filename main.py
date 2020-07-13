@@ -17,13 +17,15 @@ from pygame.locals import (
 )
 
 SCREEN_WIDTH = 800
+SCREEN_HALF_WIDTH = SCREEN_WIDTH // 2
 SCREEN_HEIGHT = 600
+SCREEN_HALF_HEIGHT = SCREEN_HEIGHT // 2
 
 def show_go_screen():
     #screen.blit(background, background_rect)
     screen.fill((0, 0, 0))
     draw_text(screen, "GAME OVER", 90,
-              SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 - 30)
+              SCREEN_HALF_WIDTH, SCREEN_HALF_HEIGHT - 30)
     pygame.display.flip()
     waiting = True
     while waiting:
@@ -33,7 +35,6 @@ def show_go_screen():
                 pygame.quit()
             if event.type == pygame.KEYUP:
                 waiting = False
-                
 
 font_name = pygame.font.match_font('arial')
 
@@ -43,14 +44,14 @@ def draw_text(surf, text, size, x, y):
     text_rect = text_surface.get_rect()
     text_rect.midtop = (x, y)
     surf.blit(text_surface, text_rect)
-    
+
 def draw_lives(surf, x, y, lives, img):
     for i in range(lives):
         img_rect = img.get_rect()
         img_rect.x = x + 45 * i
         img_rect.y = y
-        surf.blit(img, img_rect)    
-        
+        surf.blit(img, img_rect)
+
 def draw_score(surf, x, y, wins, img):
     for i in range(wins):
         img_rect = img.get_rect()
@@ -64,8 +65,8 @@ class Platform(pygame.sprite.Sprite):
         super(Platform, self).__init__()
         self.original_image = pygame.image.load("chmurka.png")
         self.size = self.original_image.get_size()
-        self.surf = pygame.transform.scale(self.original_image, (int(self.size[0]/3), int(self.size[1]/3)))
-        self.rect = self.surf.get_rect(center=(SCREEN_WIDTH/2, SCREEN_HEIGHT/2))
+        self.surf = pygame.transform.scale(self.original_image, (int(self.size[0] // 3), int(self.size[1] // 3)))
+        self.rect = self.surf.get_rect(center=(SCREEN_HALF_WIDTH, SCREEN_HALF_HEIGHT))
         #self.rect.top = 0
         #self.rect.centerx = 0
         
@@ -77,8 +78,8 @@ class Meadow(pygame.sprite.Sprite):
         super(Meadow, self).__init__()
         self.original_image = pygame.image.load("meadow.png")
         self.size = self.original_image.get_size()
-        self.surf = pygame.transform.scale(self.original_image, (int(self.size[0]/4), int(self.size[1]/4)))
-        self.rect = self.surf.get_rect(center=(SCREEN_WIDTH/2, SCREEN_HEIGHT/1.2))
+        self.surf = pygame.transform.scale(self.original_image, (int(self.size[0] // 4), int(self.size[1] // 4)))
+        self.rect = self.surf.get_rect(center=(SCREEN_HALF_WIDTH, int(SCREEN_HEIGHT / 1.2)))
         
     #def level_moves_up(self):
         
@@ -92,11 +93,11 @@ class Player(pygame.sprite.Sprite):
         super(Player, self).__init__()
         self.original_image = pygame.image.load('PinClipart.com_corgi-clip-art_2877425.png')
         self.size = self.original_image.get_size()
-        self.image_unflipped = pygame.transform.scale(self.original_image, (int(self.size[0]/3), int(self.size[1]/3)))
-        self.surf = pygame.transform.scale(self.original_image, (int(self.size[0]/3), int(self.size[1]/3)))
+        self.image_unflipped = pygame.transform.scale(self.original_image, (self.size[0] // 3, self.size[1] // 3))
+        self.surf = pygame.transform.scale(self.original_image, (self.size[0] // 3, self.size[1] // 3))
         self.rect = self.surf.get_rect()
-        self.rect.bottom = SCREEN_HEIGHT 
-        self.rect.centerx = SCREEN_WIDTH / 2
+        self.rect.bottom = SCREEN_HEIGHT
+        self.rect.centerx = SCREEN_HALF_WIDTH
         self.image_flipped = pygame.transform.flip(self.image_unflipped, True, False)
         self.moving_left = False
         self.moving_right = False
@@ -109,16 +110,16 @@ class Player(pygame.sprite.Sprite):
         #self.is_bark = True
         #self.is_outch = True
         self.jump_count = 15
-        self.mini_img = pygame.transform.scale(self.original_image, (int(self.size[0]/10), int(self.size[1]/10)))
+        self.mini_img = pygame.transform.scale(self.original_image, (self.size[0] // 10, self.size[1] // 10))
         self.lives = 5
         self.hidden = False
         self.hide_timer = pygame.time.get_ticks()
         self.knochen = pygame.image.load("knochen_kleiner.png")
-        self.mini_food = pygame.transform.scale(self.knochen, (int(self.size[0]/10), int(self.size[1]/19)))#.convert()
+        self.mini_food = pygame.transform.scale(self.knochen, (self.size[0] // 10, self.size[1] // 19))
         #self.black = (0, 0, 0)
         #self.mini_food.set_colorkey(self.black)
         self.wins = 0
-        self.current_level = int(self.wins / 5)
+        self.current_level = self.wins // 5
 
     def update(self, pressed_keys):
 
@@ -147,7 +148,7 @@ class Player(pygame.sprite.Sprite):
                 self.is_jump = True
         else: # Diese ganze Jump-Funktion kommt offenbar nicht ohne self.rect.bottom = SCREEN_HEIGHT in 139 aus :(
             if self.jump_count >= -15:
-                self.rect.move_ip(0, self.jump_count * abs(self.jump_count) * 0.5)
+                self.rect.move_ip(0, self.jump_count * abs(self.jump_count) // 2)
                 self.jump_count -= 3
             else: 
                 self.is_jump = False          
@@ -170,7 +171,7 @@ class Enemy(pygame.sprite.Sprite):
         pots = random.choice(("pot-01.png", "pot-02.png", "pot-03.png", "pot-04.png", "kitty.png"))
         self.original_image = pygame.image.load(pots)
         self.size = self.original_image.get_size()
-        self.surf = pygame.transform.scale(self.original_image, (int(self.size[0]/3), int(self.size[1]/3)))
+        self.surf = pygame.transform.scale(self.original_image, (int(self.size[0] // 3), int(self.size[1] // 3)))
         self.rect = self.surf.get_rect(
             center=(
                 random.randint(50, SCREEN_WIDTH-50),
@@ -193,13 +194,13 @@ class Food(pygame.sprite.Sprite):
         jedzonko = random.choice(("wurst2000.png", "knochen_mittel.png"))
         self.original_image = pygame.image.load(jedzonko)
         self.size = self.original_image.get_size()
-        self.surf = pygame.transform.scale(self.original_image, (int(self.size[0]/3), int(self.size[1]/3)))
+        self.surf = pygame.transform.scale(self.original_image, (self.size[0] // 3, self.size[1] // 3))
         #self.rect = self.surf.get_rect(topleft=(random.randrange(0,SCREEN_WIDTH-80),400))
         
         self.rect = self.surf.get_rect(
             center=(
                 random.randint(80, SCREEN_WIDTH - 80),
-                random.randint(SCREEN_HEIGHT/2, SCREEN_HEIGHT + 100),
+                random.randint(SCREEN_HALF_HEIGHT, SCREEN_HEIGHT + 100),
             )
         )
         
@@ -221,7 +222,7 @@ class Cloud(pygame.sprite.Sprite):
         super(Cloud, self).__init__()
         self.original_image = pygame.image.load("chmurka.png")
         self.size = self.original_image.get_size()
-        self.surf = pygame.transform.scale(self.original_image, (int(self.size[0]/3), int(self.size[1]/3)))
+        self.surf = pygame.transform.scale(self.original_image, (self.size[0] // 3, self.size[1] // 3))
         self.rect = self.surf.get_rect(
             center=(
                 random.randint(SCREEN_WIDTH + 100, SCREEN_WIDTH + 200),
@@ -291,10 +292,6 @@ def level_up():
     player.current_level += 1
     #print(player.current_level)
 
-
-    
-    
-# Main loop
 class Game:
     sounds = {
         'auuuuu': pygame.mixer.Sound('auuuuu.ogg'),
