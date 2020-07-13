@@ -251,12 +251,8 @@ screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 
 # Create a custom event for adding a new enemy
 ADDENEMY = pygame.USEREVENT + 1
-pygame.time.set_timer(ADDENEMY, 1300)
 ADDCLOUD = pygame.USEREVENT + 2
-pygame.time.set_timer(ADDCLOUD, 2700)
 ADDFOOD = pygame.USEREVENT + 3
-pygame.time.set_timer(ADDFOOD, 4900)
-
 
 # Instantiate player and background
 meadow = Meadow()
@@ -314,6 +310,10 @@ class Game:
 def main():
     global player, meadow, enemies, foods, clouds, all_sprites
     global global_time
+
+    pygame.time.set_timer(ADDENEMY, 1300)
+    pygame.time.set_timer(ADDCLOUD, 2700)
+    pygame.time.set_timer(ADDFOOD, 4900)
 
     while Game.running:
         if Game.transitioning:
