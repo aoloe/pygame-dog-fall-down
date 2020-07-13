@@ -21,21 +21,6 @@ SCREEN_HALF_WIDTH = SCREEN_WIDTH // 2
 SCREEN_HEIGHT = 600
 SCREEN_HALF_HEIGHT = SCREEN_HEIGHT // 2
 
-def show_go_screen():
-    #screen.blit(background, background_rect)
-    screen.fill((0, 0, 0))
-    draw_text(screen, "GAME OVER", 90,
-              SCREEN_HALF_WIDTH, SCREEN_HALF_HEIGHT - 30)
-    pygame.display.flip()
-    waiting = True
-    while waiting:
-        clock.tick(50)
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-            if event.type == pygame.KEYUP:
-                waiting = False
-
 font_name = pygame.font.match_font('arial')
 
 def draw_text(surf, text, size, x, y):
@@ -304,6 +289,21 @@ class Game:
     transitioning = False
     running = True
 
+    @staticmethod
+    def show_game_over_screen():
+        screen.fill((0, 0, 0))
+        draw_text(screen, "GAME OVER", 90,
+                  SCREEN_HALF_WIDTH, SCREEN_HALF_HEIGHT - 30)
+        pygame.display.flip()
+        waiting = True
+        while waiting:
+            clock.tick(50)
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                if event.type == pygame.KEYUP:
+                    waiting = False
+
 def main():
     global player, meadow, enemies, foods, clouds, all_sprites
     global global_time
@@ -325,7 +325,7 @@ def main():
 
         elif Game.game_over:
             pygame.mixer.Sound.play(Game.sounds['sad-trombone'])
-            show_go_screen()
+            Game.show_game_over_screen()
             Game.game_over = False # WHY?
             all_sprites = pygame.sprite.Group()
             enemies = pygame.sprite.Group()
