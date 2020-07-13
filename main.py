@@ -84,7 +84,7 @@ class Meadow(pygame.sprite.Sprite):
         
         #self.rect.move_ip(0, +2)
         #if self.rect.top > SCREEN_HEIGHT:
-            #transitioning = False
+            #Game.transitioning = False
             #self.kill()
 
 class Player(pygame.sprite.Sprite):
@@ -119,12 +119,7 @@ class Player(pygame.sprite.Sprite):
         #self.mini_food.set_colorkey(self.black)
         self.wins = 0
         self.current_level = int(self.wins / 5)
-        
-        
-        
-        
-        
-        
+
     def update(self, pressed_keys):
 
         if self.current_level == 0:
@@ -132,13 +127,13 @@ class Player(pygame.sprite.Sprite):
           
         keys = pygame.key.get_pressed()
         
-        if pressed_keys[K_LEFT] and not transitioning:
+        if pressed_keys[K_LEFT] and not Game.transitioning:
             self.rect.bottom = SCREEN_HEIGHT
             self.rect.move_ip(-self.speed, 0)
             self.surf = self.image_flipped
             self.moving_left = True
             
-        if pressed_keys[K_RIGHT] and not transitioning:
+        if pressed_keys[K_RIGHT] and not Game.transitioning:
             self.rect.bottom = SCREEN_HEIGHT
             self.rect.move_ip(self.speed, 0)
             self.surf = self.image_unflipped
@@ -146,8 +141,8 @@ class Player(pygame.sprite.Sprite):
         
         if not(self.is_jump): 
 
-            if pressed_keys[K_SPACE] and not transitioning:
-                pygame.mixer.Sound.play(sounds['bark'])
+            if pressed_keys[K_SPACE] and not Game.transitioning:
+                pygame.mixer.Sound.play(Game.sounds['bark'])
                 self.jump_count = 15
                 self.is_jump = True
         else: # Diese ganze Jump-Funktion kommt offenbar nicht ohne self.rect.bottom = SCREEN_HEIGHT in 139 aus :(
@@ -290,7 +285,7 @@ def run_once(f):
 # The decorated level_up function
 @run_once
 def level_up():
-    pygame.mixer.Sound.play(sounds['auuuuu'])
+    pygame.mixer.Sound.play(Game.sounds['auuuuu'])
     platform = Platform()
     all_sprites.add(platform)
     player.surf = player.image_unflipped
@@ -304,26 +299,24 @@ def level_up():
     
     
 # Main loop
-game_over = False
-transitioning = False
-platform_created = False
-running = True
-
-sounds = {
-    'auuuuu': pygame.mixer.Sound('auuuuu.ogg'),
-    'bark': pygame.mixer.Sound('bark.ogg'),
-    'bite': pygame.mixer.Sound('bite.ogg'),
-    'error': pygame.mixer.Sound('error.ogg'),
-    'sad-trombone': pygame.mixer.Sound('sad-trombone.ogg'),
-}
+class Game:
+    sounds = {
+        'auuuuu': pygame.mixer.Sound('auuuuu.ogg'),
+        'bark': pygame.mixer.Sound('bark.ogg'),
+        'bite': pygame.mixer.Sound('bite.ogg'),
+        'error': pygame.mixer.Sound('error.ogg'),
+        'sad-trombone': pygame.mixer.Sound('sad-trombone.ogg'),
+    }
+    game_over = False
+    transitioning = False
+    running = True
 
 def main():
-    global game_over, transitioning, platform_created, running
     global player, meadow, enemies, foods, clouds, all_sprites
     global global_time
 
-    while running:
-        if transitioning:
+    while Game.running:
+        if Game.transitioning:
             action = run_once(level_up)
             action() # run once the first time
             player.lives = 5
@@ -331,12 +324,12 @@ def main():
             all_sprites.remove()
             if meadow.rect.top > SCREEN_HEIGHT:
                 meadow.kill()
-                transitioning = False
+                Game.transitioning = False
 
-        elif game_over:
-            pygame.mixer.Sound.play(sounds['sad-trombone'])
+        elif Game.game_over:
+            pygame.mixer.Sound.play(Game.sounds['sad-trombone'])
             show_go_screen()
-            game_over = False # WHY?
+            Game.game_over = False # WHY?
             all_sprites = pygame.sprite.Group()
             enemies = pygame.sprite.Group()
             foods = pygame.sprite.Group()
@@ -347,7 +340,7 @@ def main():
             all_sprites.add(player)
             player.wins = 0
         if player.lives == -1:
-            game_over = True
+            Game.game_over = True
 
         else:
             dt = clock.tick(50)
@@ -359,13 +352,13 @@ def main():
             if event.type == KEYDOWN:
                 # If the Esc key is pressed, then exit the main loop
                 if event.key == K_ESCAPE:
-                    running = False
+                    Game.running = False
             # Check for QUIT event. If QUIT, then set running to false.
             elif event.type == QUIT:
-                running = False
+                Game.running = False
 
             # Add a new enemy?
-            elif event.type == ADDENEMY and not transitioning:
+            elif event.type == ADDENEMY and not Game.transitioning:
                 # Create the new enemy and add it to sprite groups
                 new_enemy = Enemy()
                 enemies.add(new_enemy)
@@ -379,7 +372,7 @@ def main():
                 all_sprites.add(new_cloud)
 
             # Add a new food?
-            elif event.type == ADDFOOD and not transitioning:
+            elif event.type == ADDFOOD and not Game.transitioning:
                 # Create the new cloud and add it to sprite groups
                 new_food = Food()
                 foods.add(new_food)
@@ -407,25 +400,25 @@ def main():
         draw_score(screen, 20, 5, player.wins, player.mini_food)
 
         # Check if any enemies have collided with the player, remove enemy, subtract player life
-        if pygame.sprite.spritecollide(player, enemies, dokill=True, collided=None) and not transitioning:
-            pygame.mixer.Sound.play(sounds['error'])
+        if pygame.sprite.spritecollide(player, enemies, dokill=True, collided=None) and not Game.transitioning:
+            pygame.mixer.Sound.play(Game.sounds['error'])
             player.lives -= 1
             pygame.time.wait(1500)
 
-        if pygame.sprite.spritecollide(player, foods, dokill=True, collided=None) and not transitioning:
+        if pygame.sprite.spritecollide(player, foods, dokill=True, collided=None) and not Game.transitioning:
             player.wins += 1
-            pygame.mixer.Sound.play(sounds['bite'])
+            pygame.mixer.Sound.play(Game.sounds['bite'])
 
         if player.wins == 1:
-            transitioning = True
+            Game.transitioning = True
 
         # If so, then remove the player and stop the loop
         if player.lives == -1:
-            game_over = True
+            Game.game_over = True
 
             #player.kill()
             #pygame.time.wait(4500)
-            #running = False
+            #Game.running = False
 
         #if player.wins == 1:
             #player.lives = 5
