@@ -22,11 +22,8 @@ SCREEN_HEIGHT = 600
 def show_go_screen():
     #screen.blit(background, background_rect)
     screen.fill((0, 0, 0))
-    #draw_text(screen, "GAME OVER", 64, SCREEN_WIDTH / 2, SCREEN_HEIGHT / 4)
     draw_text(screen, "GAME OVER", 90,
               SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 - 30)
-    #draw_text(screen, "press any key - naciśnij klawisz", 18, SCREEN_WIDTH / 2, SCREEN_HEIGHT * 3 / 4)
-    #draw_text(screen, "naciśnij klawisz", 18, SCREEN_WIDTH / 2, SCREEN_HEIGHT * 3 / 4 + 20)
     pygame.display.flip()
     waiting = True
     while waiting:
@@ -175,8 +172,8 @@ class Player(pygame.sprite.Sprite):
 class Enemy(pygame.sprite.Sprite):
     def __init__(self):
         super(Enemy, self).__init__()
-        doniczka = random.choice(("doniczka_1.png", "doniczka_2.png", "doniczka_3.png", "doniczka_4.png", "kitty.png"))
-        self.original_image = pygame.image.load(doniczka)
+        pots = random.choice(("pot-01.png", "pot-02.png", "pot-03.png", "pot-04.png", "kitty.png"))
+        self.original_image = pygame.image.load(pots)
         self.size = self.original_image.get_size()
         self.surf = pygame.transform.scale(self.original_image, (int(self.size[0]/3), int(self.size[1]/3)))
         self.rect = self.surf.get_rect(
