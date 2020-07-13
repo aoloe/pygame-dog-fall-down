@@ -1,7 +1,6 @@
 import pygame
 import random
 import time
-from pygame.mixer import Sound
 
 # Import pygame.locals for easier access to key coordinates
 # Updated to conform to flake8 and black standards
@@ -19,13 +18,6 @@ from pygame.locals import (
 
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
-
-def make_sound(sound):
-    pygame.mixer.music.load(sound)
-    pygame.mixer.music.play()  
-        
-def stop_sound():
-    pygame.mixer.music.stop()
 
 def show_go_screen():
     #screen.blit(background, background_rect)
@@ -158,7 +150,7 @@ class Player(pygame.sprite.Sprite):
         if not(self.is_jump): 
 
             if pressed_keys[K_SPACE] and not transitioning:
-                make_sound("bark_h.wav")
+                pygame.mixer.Sound.play(sounds['bark'])
                 self.jump_count = 15
                 self.is_jump = True
         else: # Diese ganze Jump-Funktion kommt offenbar nicht ohne self.rect.bottom = SCREEN_HEIGHT in 139 aus :(
@@ -230,7 +222,6 @@ class Food(pygame.sprite.Sprite):
             self.kill()
             
         #elif pygame.sprite.spritecollideany(player, foods):
-            #make_sound("bite.wav")
             #self.kill()
             
 class Cloud(pygame.sprite.Sprite):
@@ -257,11 +248,7 @@ clock = pygame.time.Clock()
 
 # Initialize pygame
 pygame.init()
-
-#Initialize sounds
 pygame.mixer.init()
-
-# Set global time
 global_time = 0
 
 
@@ -306,7 +293,7 @@ def run_once(f):
 # The decorated level_up function
 @run_once
 def level_up():
-    make_sound("auuuuu.ogg")
+    pygame.mixer.Sound.play(sounds['auuuuu'])
     platform = Platform()
     all_sprites.add(platform)
     player.surf = player.image_unflipped
@@ -325,6 +312,14 @@ transitioning = False
 platform_created = False
 running = True
 
+sounds = {
+    'auuuuu': pygame.mixer.Sound('auuuuu.ogg'),
+    'bark': pygame.mixer.Sound('bark.ogg'),
+    'bite': pygame.mixer.Sound('bite.ogg'),
+    'error': pygame.mixer.Sound('error.ogg'),
+    'sad-trombone': pygame.mixer.Sound('sad-trombone.ogg'),
+}
+
 while running:
     
     if transitioning:
@@ -339,7 +334,7 @@ while running:
             transitioning = False
   
     elif game_over:
-        make_sound("sad_trombone.wav")
+        pygame.mixer.Sound.play(sounds['sad-trombone'])
         show_go_screen()
         game_over = False # WHY?
         all_sprites = pygame.sprite.Group()
@@ -414,16 +409,14 @@ while running:
         
     # Check if any enemies have collided with the player, remove enemy, subtract player life
     if pygame.sprite.spritecollide(player, enemies, dokill=True, collided = None) and not transitioning:
-        make_sound("Computer Error Alert-SoundBible.com-783113881.wav")
+        pygame.mixer.Sound.play(sounds['error'])
         player.lives -=1
         
-        #make_sound("fail.wav")
-        #pygame.time.delay(1500) 
         pygame.time.wait(1500)
         
     if pygame.sprite.spritecollide(player, foods, dokill=True, collided = None) and not transitioning:
         player.wins +=1
-        make_sound("bite.wav")
+        pygame.mixer.Sound.play(sounds['bite'])
     
     
     if player.wins == 1:
@@ -434,13 +427,11 @@ while running:
         game_over = True
 
         #player.kill()
-        #make_sound("sad_trombone.wav")
         #pygame.time.wait(4500)
         #running = False
     
     #if player.wins == 1:
         #player.lives = 5
-        #make_sound("bark_h.wav")
         
         
     # Update the display (show the new frame)
