@@ -143,10 +143,11 @@ class Enemy(pygame.sprite.Sprite):
         self.original_image = pygame.image.load(pots)
         self.size = self.original_image.get_size()
         self.surf = pygame.transform.scale(self.original_image, (int(self.size[0] // 3), int(self.size[1] // 3)))
+        self.position_y = random.randint(-400, -200)
         self.rect = self.surf.get_rect(
             center=(
-                random.randint(50, SCREEN_WIDTH-50),
-                random.randint(-400, -200),
+                random.randint(50, SCREEN_WIDTH - 50),
+                self.position_y
             )
         )
 
@@ -155,7 +156,7 @@ class Enemy(pygame.sprite.Sprite):
     # Move the sprite based on speed
     # Remove the sprite when it passes the left edge of the screen
     def update(self, dt):
-        self.rect.move_ip(0, +self.speed)
+        self.rect.move_ip(0, self.speed)
         if self.rect.bottom > SCREEN_HEIGHT+150:
             self.kill()
 
@@ -241,17 +242,6 @@ all_sprites = pygame.sprite.Group()
 all_sprites.add(meadow)
 all_sprites.add(player)
 
-# Decorator to execute a function within the while loop only once
-def run_once(f):
-    def wrapper(*args, **kwargs):
-        if not wrapper.has_run:
-            wrapper.has_run = True
-            return f(*args, **kwargs)
-    wrapper.has_run = False
-    return wrapper
- 
-# The decorated level_up function
-@run_once
 def level_up():
     pygame.mixer.Sound.play(Game.sounds['auuuuu'])
     platform = Platform()
@@ -262,6 +252,9 @@ def level_up():
     #print(player.current_level)
     player.current_level += 1
     #print(player.current_level)
+
+    player.lives = 5
+    all_sprites.remove()
 
 class Game:
     sounds = {
@@ -300,12 +293,8 @@ def main():
 
     dt = 0
     while Game.running:
-        if Game.transitioning:
-            action = run_once(level_up)
-            action() # run once the first time
-            player.lives = 5
+        if Game.transitioning: # to next level
             meadow.rect.move_ip(0, +2)
-            all_sprites.remove()
             if meadow.rect.top > SCREEN_HEIGHT:
                 meadow.kill()
                 Game.transitioning = False
@@ -392,8 +381,9 @@ def main():
             player.wins += 1
             pygame.mixer.Sound.play(Game.sounds['bite'])
 
-        if player.wins == 1:
-            Game.transitioning = True
+            if player.wins == 1:
+                level_up()
+                Game.transitioning = True
 
         # If so, then remove the player and stop the loop
         if player.lives == -1:
